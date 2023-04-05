@@ -2,6 +2,7 @@ import os
 
 from selene import have, command
 from selene.support.shared import browser
+from datetime import datetime
 
 
 class RegistrationPage:
@@ -23,6 +24,21 @@ class RegistrationPage:
         self.city = browser.element('#city')
         self.city_select = browser.element('#react-select-4-option-0')
         self.submit = browser.element('#submit')
+
+    def fill_registration_form(self, user):
+        self.fill_first_name(user.first_name)
+        self.fill_last_name(user.last_name)
+        self.fill_email(user.email)
+        self.select_gender(user.gender)
+        self.fill_mobile_phone(user.mobile_phone)
+        self.fill_date_of_birth(*user.date_of_birth)
+        self.select_hobbies(user.hobbies)
+        self.fill_subjects(user.subjects)
+        self.upload_file(f'\\resources\\{user.upload_file}')
+        self.fill_address(user.address)
+        self.select_state(user.state)
+        self.select_city(user.city)
+        self.submit_click()
 
     def open(self):
         browser.open('/automation-practice-form')
@@ -91,20 +107,22 @@ class RegistrationPage:
         self.submit.click()
         return self
 
-    def should_registered_user_with(self, full_name, email, gender, number, dateofbirth, subjects, hobbies, photo,
-                                    address, stateandcity):
+    def should_registered_user_with(self, user):
+        full_name = f'{user.first_name} {user.last_name}'
+        state_and_city = f'{user.state} {user.city}'
+        dateofbirthday = str(datetime.strptime(' '.join(user.date_of_birth), '%Y %B %d').strftime('%d %B,%Y'))
         browser.element('.table').all('td').even.should(
             have.exact_texts(
                 full_name,
-                email,
-                gender,
-                number,
-                dateofbirth,
-                subjects,
-                hobbies,
-                photo,
-                address,
-                stateandcity,
+                user.email,
+                user.gender,
+                user.mobile_phone,
+                dateofbirthday,
+                user.subjects,
+                user.hobbies,
+                user.upload_file,
+                user.address,
+                state_and_city
             )
         )
         return self
